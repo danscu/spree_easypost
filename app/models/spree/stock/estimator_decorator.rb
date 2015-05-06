@@ -1,5 +1,5 @@
 Spree::Stock::Estimator.class_eval do
-  def shipping_rates(package)
+  def shipping_rates(package, shipping_method_filter = Spree::ShippingMethod::DISPLAY_ON_FRONT_END)
     order = package.order
 
     from_address = process_address(package.stock_location)
@@ -35,7 +35,8 @@ Spree::Stock::Estimator.class_eval do
     ep_address_attrs[:company] = if address.respond_to?(:company)
       address.company
     else
-      Spree::Config[:site_name]
+      # Spree::Config[:site_name]
+      Spree::Store.default[:name]
     end
     ep_address_attrs[:name] = address.full_name if address.respond_to?(:full_name)
     ep_address_attrs[:street1] = address.address1
