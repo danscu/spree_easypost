@@ -1,5 +1,14 @@
 Spree::Stock::Estimator.class_eval do
+
+  # Edit here for customized ship method names
+  @@show_rates = { \
+    "USPS First" => "USPS First-Class Mail Parcel (1-3 days)", \
+    "USPS Priority" => "USPS Priority Mail (1-3 days)", \
+    "UPS Ground" => "UPS Ground (1-5 days)" \
+  }
+
   def shipping_rates(package, shipping_method_filter = Spree::ShippingMethod::DISPLAY_ON_FRONT_END)
+
     order = package.order
 
     from_address = process_address(package.stock_location)
@@ -10,8 +19,13 @@ Spree::Stock::Estimator.class_eval do
 
     if rates.any?
       rates.each do |rate|
+        easypost_ship_method_name = "#{rate.carrier} #{rate.service}"
+        local_name = @@show_rates[easypost_ship_method_name]
+
+        next if local_name.nil?
+
         package.shipping_rates << Spree::ShippingRate.new(
-          :name => "#{rate.carrier} #{rate.service}",
+          :name => local_name,
           :cost => rate.rate,
           :easy_post_shipment_id => rate.shipment_id,
           :easy_post_rate_id => rate.id
